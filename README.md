@@ -48,17 +48,17 @@
    cd poker-game
    ```
 
-2. 使用本地服务器运行：
-   - 使用Python：
-     ```bash
-     python -m http.server 8000
-     ```
-   - 或使用Node.js的http-server：
-     ```bash
-     npx http-server
-     ```
+2. 安装依赖：
+   ```bash
+   npm install
+   ```
 
-3. 在浏览器中访问：
+3. 启动开发服务器：
+   ```bash
+   npm run dev
+   ```
+
+4. 在浏览器中访问：
    ```
    http://localhost:8000
    ```
@@ -68,11 +68,35 @@
 项目已配置为可以直接部署到Render.com：
 
 1. Fork这个仓库
-2. 在Render.com创建新的静态站点
-3. 连接你的GitHub仓库
-4. 部署设置：
-   - Build Command: 留空
-   - Publish Directory: .
+
+2. 在Render.com创建新的静态站点：
+   - 登录Render.com
+   - 点击 "New +" → "Static Site"
+   - 连接你的GitHub仓库
+
+3. 配置部署设置：
+   - Name: poker-game（或你想要的名称）
+   - Branch: main
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: dist
+   - Environment Variables: 不需要设置
+
+4. 点击 "Create Static Site"
+
+5. 等待部署完成（约1-2分钟）
+
+6. 访问Render提供的URL（例如 https://poker-game.onrender.com）
+
+## 自动部署
+
+每次推送到main分支时，Render会自动重新部署：
+
+```bash
+# 修改代码后
+git add .
+git commit -m "更新说明"
+git push origin main
+```
 
 ## 浏览器支持
 

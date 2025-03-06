@@ -3,6 +3,11 @@
  * 负责初始化应用和基本设置
  */
 
+// 导入新功能模块
+import { leaderboard } from './leaderboard.js';
+import { achievements } from './achievements.js';
+import { touchHandler } from './touch.js';
+
 // 应用主类
 class PokerApp {
     constructor() {
@@ -723,4 +728,75 @@ class PokerApp {
 // 页面加载完成后初始化应用
 window.addEventListener('DOMContentLoaded', () => {
     window.pokerApp = new PokerApp();
-}); 
+});
+
+// 初始化游戏状态
+const gameState = {
+    isWinner: false,
+    currentPot: 0,
+    consecutiveGames: 0,
+    handRank: '',
+    successfulBluff: false
+};
+
+// 更新游戏状态
+function updateGameState(newState) {
+    Object.assign(gameState, newState);
+    
+    // 检查成就
+    achievements.checkAchievements(gameState, currentPlayer.name);
+    
+    // 更新排行榜
+    if (gameState.isWinner) {
+        leaderboard.updateScore(currentPlayer.name, gameState.currentPot, {
+            gamesPlayed: gameState.consecutiveGames,
+            wins: currentPlayer.wins,
+            biggestPot: gameState.currentPot
+        });
+    }
+}
+
+// 添加移动端手势控制
+document.addEventListener('swipeLeft', () => {
+    // 处理向左滑动
+    showPreviousAction();
+});
+
+document.addEventListener('swipeRight', () => {
+    // 处理向右滑动
+    showNextAction();
+});
+
+// 显示手势提示
+function showGestureHint(message) {
+    const hint = document.createElement('div');
+    hint.className = 'gesture-hint';
+    hint.textContent = message;
+    document.body.appendChild(hint);
+    
+    setTimeout(() => hint.classList.add('show'), 100);
+    setTimeout(() => {
+        hint.classList.remove('show');
+        setTimeout(() => hint.remove(), 300);
+    }, 2000);
+}
+
+// 首次加载时显示手势提示
+window.addEventListener('load', () => {
+    if (window.innerWidth <= 768) {
+        showGestureHint('左右滑动切换操作，上下滑动调整筹码');
+    }
+});
+
+// 添加触摸反馈效果
+function addTouchFeedback(event) {
+    const feedback = document.createElement('div');
+    feedback.className = 'touch-feedback';
+    feedback.style.left = `${event.touches[0].clientX - 20}px`;
+    feedback.style.top = `${event.touches[0].clientY - 20}px`;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => feedback.remove(), 400);
+}
+
+document.addEventListener('touchstart', addTouchFeedback); 

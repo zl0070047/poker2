@@ -2,16 +2,19 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>德州扑克 - 苹果风格</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>德州扑克</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
-    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <meta name="description" content="一个精美的在线德州扑克游戏，支持多人对战和移动端">
+    <meta name="theme-color" content="#000000">
     <!-- 苹果系统字体 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap">
 </head>
 <body>
-    <div class="app-container">
+    <div id="game-container" class="game-container">
         <!-- 主页面 -->
         <div class="main-screen active" id="welcome-screen">
             <div class="welcome-logo">
@@ -248,10 +251,40 @@
         </div>
     </div>
     
-    <!-- 脚本 -->
-    <script src="js/app.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/poker.js"></script>
-    <script src="js/game.js"></script>
+    <!-- 移动端手势提示 -->
+    <div id="gesture-hint" class="gesture-hint"></div>
+
+    <!-- 成就通知容器 -->
+    <div id="achievement-notifications"></div>
+
+    <!-- 快速操作菜单 -->
+    <div id="quick-actions" class="quick-actions"></div>
+
+    <!-- 脚本引用 -->
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/poker.js"></script>
+    <script type="module" src="js/game.js"></script>
+    <script type="module" src="js/leaderboard.js"></script>
+    <script type="module" src="js/achievements.js"></script>
+    <script type="module" src="js/touch.js"></script>
+
+    <!-- 禁用双击缩放 -->
+    <script>
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
 </body>
 </html> 
