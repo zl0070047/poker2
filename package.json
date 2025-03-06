@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "start": "http-server -p $PORT",
-    "build": "mkdir -p dist && cp -r index.html 404.html css js assets _headers dist/",
+    "build": "mkdir -p dist && cp -r index.html 404.html css js assets _headers dist/ && chmod -R 755 dist/",
     "dev": "http-server -p 8000"
   },
   "keywords": [

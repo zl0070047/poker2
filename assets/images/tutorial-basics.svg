@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+    <!-- 牌桌背景 -->
+    <rect x="50" y="50" width="500" height="300" rx="20" fill="#007F5F"/>
+    
+    <!-- 公共牌区域 -->
+    <rect x="200" y="150" width="200" height="100" rx="10" fill="#005F3F"/>
+    
+    <!-- 玩家手牌示意 -->
+    <g transform="translate(270,280)">
+        <rect x="0" y="0" width="60" height="80" rx="5" fill="#FFF" stroke="#000"/>
+        <rect x="20" y="0" width="60" height="80" rx="5" fill="#FFF" stroke="#000"/>
+    </g>
+    
+    <!-- 筹码区域 -->
+    <circle cx="300" cy="200" r="40" fill="#FFD700" opacity="0.8"/>
+    
+    <!-- 文字说明 -->
+    <text x="300" y="40" text-anchor="middle" fill="#FFF" font-size="24">德州扑克基础规则</text>
+    <text x="300" y="380" text-anchor="middle" fill="#FFF" font-size="16">每位玩家获得2张底牌，5张公共牌</text>
+</svg> 
