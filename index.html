@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>德州扑克 - 苹果风格</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <!-- 苹果系统字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 主页面 -->
+        <div class="main-screen active" id="welcome-screen">
+            <div class="welcome-logo">
+                <div class="logo-card spade"></div>
+                <div class="logo-card heart"></div>
+                <div class="logo-card club"></div>
+                <div class="logo-card diamond"></div>
+                <h1>德州扑克</h1>
+            </div>
+            
+            <div class="player-setup">
+                <div class="input-group">
+                    <label for="player-name">玩家名称</label>
+                    <input type="text" id="player-name" placeholder="输入您的名称..." maxlength="12">
+                </div>
+                
+                <div class="avatar-selection">
+                    <p>选择头像</p>
+                    <div class="avatar-grid" id="avatar-grid">
+                        <!-- 头像会通过JS动态加载 -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-actions">
+                <button class="btn-primary" id="create-room">创建房间</button>
+                <button class="btn-secondary" id="join-room">加入房间</button>
+                <button class="btn-text" id="show-tutorial">游戏教程</button>
+            </div>
+        </div>
+        
+        <!-- 创建房间页面 -->
+        <div class="main-screen" id="create-room-screen">
+            <h2>创建房间</h2>
+            
+            <div class="room-settings">
+                <div class="input-group">
+                    <label for="room-name">房间名称</label>
+                    <input type="text" id="room-name" placeholder="输入房间名称..." maxlength="20">
+                </div>
+                
+                <div class="input-group">
+                    <label for="player-count">玩家人数</label>
+                    <div class="range-container">
+                        <input type="range" id="player-count" min="4" max="10" value="6">
+                        <div class="range-value" id="player-count-value">6人</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="small-blind">小盲注</label>
+                    <input type="number" id="small-blind" min="1" value="5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="big-blind">大盲注</label>
+                    <input type="number" id="big-blind" min="2" value="10">
+                </div>
+                
+                <div class="input-group">
+                    <label for="initial-chips">初始筹码</label>
+                    <input type="number" id="initial-chips" min="100" value="1000">
+                </div>
+                
+                <div class="input-group">
+                    <label for="all-in-flips">All in后翻牌次数</label>
+                    <select id="all-in-flips">
+                        <option value="1">1次</option>
+                        <option value="2">2次</option>
+                        <option value="3" selected>3次（标准）</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" id="back-from-create">返回</button>
+                <button class="btn-primary" id="confirm-create">创建</button>
+            </div>
+        </div>
+        
+        <!-- 加入房间页面 -->
+        <div class="main-screen" id="join-room-screen">
+            <h2>加入房间</h2>
+            
+            <div class="join-container">
+                <div class="input-group">
+                    <label for="room-code">房间号</label>
+                    <div class="room-code-input">
+                        <input type="text" id="room-code" placeholder="输入6位房间号..." maxlength="6">
+                        <button id="paste-room-code" class="btn-icon">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2H16C17.1 2 18 2.9 18 4V14H16V4H8V2ZM4 6H12C13.1 6 14 6.9 14 8V18C14 19.1 13.1 20 12 20H4C2.9 20 2 19.1 2 18V8C2 6.9 2.9 6 4 6ZM4 18H12V8H4V18Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="room-list">
+                    <h3>活跃房间</h3>
+                    <div class="room-items" id="active-rooms">
+                        <!-- 房间列表会通过JS动态加载 -->
+                        <div class="room-item">
+                            <div class="room-info">
+                                <h4>欢乐德州</h4>
+                                <p>6/8人 • 小盲5/大盲10</p>
+                            </div>
+                            <button class="btn-small">加入</button>
+                        </div>
+                        <div class="room-item">
+                            <div class="room-info">
+                                <h4>高手对决</h4>
+                                <p>4/4人 • 小盲10/大盲20</p>
+                            </div>
+                            <button class="btn-small">观战</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="join-options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="join-as-observer">
+                    <span class="checkmark"></span>
+                    <span>以观战者身份加入</span>
+                </label>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" id="back-from-join">返回</button>
+                <button class="btn-primary" id="confirm-join">加入</button>
+            </div>
+        </div>
+        
+        <!-- 教程页面 -->
+        <div class="main-screen" id="tutorial-screen">
+            <h2>德州扑克教程</h2>
+            
+            <div class="tutorial-container">
+                <div class="tutorial-navigation">
+                    <button class="tutorial-nav active" data-target="basics">基础规则</button>
+                    <button class="tutorial-nav" data-target="gameplay">游戏流程</button>
+                    <button class="tutorial-nav" data-target="hands">牌型大小</button>
+                    <button class="tutorial-nav" data-target="terms">术语解释</button>
+                </div>
+                
+                <div class="tutorial-content">
+                    <div class="tutorial-section active" id="tutorial-basics">
+                        <h3>基础规则</h3>
+                        <p>德州扑克(Texas Hold'em)是一种流行的扑克游戏变种，每位玩家各自获得两张底牌，然后桌面依次发放五张公共牌。玩家通过组合自己的底牌和公共牌，形成最佳的五张牌组合。</p>
+                        
+                        <h4>游戏目标</h4>
+                        <p>赢得其他玩家的筹码，通过下注、加注、诈唬等策略。最终获胜者是拥有所有筹码的玩家。</p>
+                        
+                        <div class="tutorial-image">
+                            <img src="assets/images/tutorial-basics.svg" alt="德州扑克基础规则图解">
+                        </div>
+                    </div>
+                    
+                    <!-- 其他教程内容会通过JS动态加载 -->
+                </div>
+            </div>
+            
+            <button class="btn-secondary" id="back-from-tutorial">返回</button>
+        </div>
+        
+        <!-- 等待玩家页面 -->
+        <div class="main-screen" id="waiting-room-screen">
+            <h2>等待其他玩家</h2>
+            
+            <div class="room-info-display">
+                <div class="room-code-display">
+                    <h3>房间号</h3>
+                    <div class="code-box" id="display-room-code">AB3C7D</div>
+                    <button class="btn-icon" id="copy-room-code">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 2H16C17.1 2 18 2.9 18 4V14H16V4H8V2ZM4 6H12C13.1 6 14 6.9 14 8V18C14 19.1 13.1 20 12 20H4C2.9 20 2 19.1 2 18V8C2 6.9 2.9 6 4 6ZM4 18H12V8H4V18Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="settings-summary">
+                    <p>小盲: <span id="small-blind-display">5</span></p>
+                    <p>大盲: <span id="big-blind-display">10</span></p>
+                    <p>初始筹码: <span id="initial-chips-display">1000</span></p>
+                </div>
+            </div>
+            
+            <div class="player-list-container">
+                <h3>玩家列表 (<span id="player-count-display">1</span>/<span id="max-player-display">6</span>)</h3>
+                <div class="player-list" id="waiting-player-list">
+                    <!-- 玩家列表会通过JS动态加载 -->
+                </div>
+            </div>
+            
+            <div class="waiting-actions">
+                <button class="btn-secondary" id="leave-room">离开房间</button>
+                <button class="btn-primary disabled" id="start-game">开始游戏</button>
+            </div>
+        </div>
+        
+        <!-- 游戏页面 -->
+        <div class="game-screen" id="game-screen">
+            <!-- 游戏内容将在game.js中动态创建 -->
+        </div>
+    </div>
+    
+    <!-- 模态框 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">标题</h3>
+                <button class="modal-close" id="modal-close">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.8334 5.34166L14.6584 4.16666L10 8.82499L5.34169 4.16666L4.16669 5.34166L8.82502 9.99999L4.16669 14.6583L5.34169 15.8333L10 11.175L14.6584 15.8333L15.8334 14.6583L11.175 9.99999L15.8334 5.34166Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 模态框内容将动态填充 -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- 模态框按钮将动态填充 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-card spade"></div>
+            <div class="spinner-card heart"></div>
+            <div class="spinner-card club"></div>
+            <div class="spinner-card diamond"></div>
+        </div>
+    </div>
+    
+    <!-- 脚本 -->
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/poker.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html> 
