@@ -9,13 +9,25 @@ class TouchHandler {
 
     // 初始化触摸事件
     initializeTouchEvents() {
-        document.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
-        document.addEventListener('touchmove', this.handleTouchMove.bind(this), false);
-        document.addEventListener('touchend', this.handleTouchEnd.bind(this), false);
+        // 使用 passive 选项配置触摸事件
+        const touchOptions = {
+            passive: false // 允许调用 preventDefault()
+        };
+
+        document.addEventListener('touchstart', this.handleTouchStart.bind(this), touchOptions);
+        document.addEventListener('touchmove', this.handleTouchMove.bind(this), touchOptions);
+        document.addEventListener('touchend', this.handleTouchEnd.bind(this), touchOptions);
     }
 
     // 处理触摸开始事件
     handleTouchStart(event) {
+        // 只在特定元素上阻止默认行为
+        if (event.target.classList.contains('card') || 
+            event.target.classList.contains('chips-area') ||
+            event.target.classList.contains('game-action')) {
+            event.preventDefault();
+        }
+
         this.touchStartX = event.touches[0].clientX;
         this.touchStartY = event.touches[0].clientY;
 
@@ -24,7 +36,6 @@ class TouchHandler {
         const tapLength = currentTime - this.lastTap;
         
         if (tapLength < 500 && tapLength > 0) {
-            event.preventDefault();
             this.handleDoubleTap(event);
         }
         

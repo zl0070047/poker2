@@ -3,10 +3,17 @@
  * 负责初始化应用和基本设置
  */
 
-// 导入新功能模块
+// 导入模块
 import { leaderboard } from './leaderboard.js';
 import { achievements } from './achievements.js';
 import { touchHandler } from './touch.js';
+import { PokerUI } from './ui.js';
+
+// 全局变量
+let currentPlayer = {
+    name: '',
+    wins: 0
+};
 
 // 应用主类
 class PokerApp {
@@ -33,7 +40,12 @@ class PokerApp {
         };
         this.gameState = {
             currentScreen: 'welcome-screen',
-            selectedAvatar: null
+            selectedAvatar: null,
+            isWinner: false,
+            currentPot: 0,
+            consecutiveGames: 0,
+            handRank: '',
+            successfulBluff: false
         };
         
         // 初始化UI
@@ -85,6 +97,16 @@ class PokerApp {
         
         // 模态框
         document.getElementById('modal-close').addEventListener('click', () => this.closeModal());
+        
+        // 移动端菜单按钮
+        const menuToggle = document.createElement('button');
+        menuToggle.className = 'menu-toggle';
+        menuToggle.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>';
+        document.body.appendChild(menuToggle);
+        
+        menuToggle.addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
     }
     
     /**
@@ -128,36 +150,26 @@ class PokerApp {
                 this.updateWaitingRoom();
                 break;
         }
+        
+        // 如果是移动端，关闭侧边栏
+        if (window.innerWidth <= 1024) {
+            document.querySelector('.sidebar').classList.remove('active');
+        }
     }
     
     /**
      * 初始化欢迎页面
      */
     initWelcomeScreen() {
-        // 加载默认头像列表
-        this.loadAvatars();
-        
-        // 从本地存储中恢复之前的名称（如果有）
-        const savedName = localStorage.getItem('poker_player_name');
+        // 加载保存的玩家信息
+        const savedName = localStorage.getItem('player_name');
         if (savedName) {
             document.getElementById('player-name').value = savedName;
-            this.player.name = savedName;
+            document.getElementById('player-name-display').textContent = savedName;
         }
         
-        // 恢复之前选择的头像（如果有）
-        const savedAvatar = localStorage.getItem('poker_player_avatar');
-        if (savedAvatar) {
-            this.player.avatar = savedAvatar;
-            setTimeout(() => {
-                const avatarItems = document.querySelectorAll('.avatar-item');
-                avatarItems.forEach(item => {
-                    if (item.dataset.avatar === savedAvatar) {
-                        item.classList.add('selected');
-                        this.gameState.selectedAvatar = savedAvatar;
-                    }
-                });
-            }, 100);
-        }
+        // 加载头像选项
+        this.loadAvatars();
     }
     
     /**
@@ -167,37 +179,30 @@ class PokerApp {
         const avatarGrid = document.getElementById('avatar-grid');
         avatarGrid.innerHTML = '';
         
-        // 预设8个大富翁风格的头像
         const avatars = [
-            { id: 'avatar1', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%234CAF50"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '绿色' },
-            { id: 'avatar2', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%232196F3"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '蓝色' },
-            { id: 'avatar3', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%23FFC107"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '黄色' },
-            { id: 'avatar4', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%23F44336"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '红色' },
-            { id: 'avatar5', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%239C27B0"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '紫色' },
-            { id: 'avatar6', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%23FF9800"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '橙色' },
-            { id: 'avatar7', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%23607D8B"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '灰色' },
-            { id: 'avatar8', url: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"%3E%3Ccircle cx="30" cy="30" r="30" fill="%23009688"/%3E%3Ccircle cx="30" cy="24" r="12" fill="%23FFF"/%3E%3Cpath d="M30 36c-8.28 0-15 3.75-15 12h30c0-8.25-6.72-12-15-12z" fill="%23FFF"/%3E%3C/svg%3E', name: '青色' }
+            { id: 'mickey', name: '米奇' },
+            { id: 'donald', name: '唐老鸭' },
+            { id: 'woody', name: '胡迪' },
+            { id: 'buzz', name: '巴斯光年' },
+            { id: 'stitch', name: '史迪奇' },
+            { id: 'elsa', name: '艾莎' },
+            { id: 'baymax', name: '大白' },
+            { id: 'simba', name: '辛巴' }
         ];
         
         avatars.forEach(avatar => {
             const item = document.createElement('div');
             item.className = 'avatar-item';
             item.dataset.avatar = avatar.id;
-            item.innerHTML = `<img src="${avatar.url}" alt="${avatar.name}头像">`;
+            item.innerHTML = `
+                <img src="assets/images/avatars/${avatar.id}.svg" alt="${avatar.name}">
+                <span class="avatar-name">${avatar.name}</span>
+            `;
             
             item.addEventListener('click', () => {
-                // 移除其他头像的选中状态
                 document.querySelectorAll('.avatar-item').forEach(el => el.classList.remove('selected'));
-                
-                // 添加选中状态
                 item.classList.add('selected');
-                
-                // 更新选中的头像
-                this.gameState.selectedAvatar = avatar.id;
-                this.player.avatar = avatar.id;
-                
-                // 保存选择
-                localStorage.setItem('poker_player_avatar', avatar.id);
+                document.getElementById('current-avatar').src = `assets/images/avatars/${avatar.id}.svg`;
             });
             
             avatarGrid.appendChild(item);
@@ -212,16 +217,12 @@ class PokerApp {
         const playerName = document.getElementById('player-name').value.trim();
         
         if (!playerName) {
-            this.showModal('请输入玩家名称', '请输入您的玩家名称才能继续。', [
-                { text: '确定', action: () => this.navigateTo('welcome-screen') }
-            ]);
+            this.ui.showToast('请输入玩家名称');
             return false;
         }
         
         if (!this.gameState.selectedAvatar) {
-            this.showModal('请选择头像', '请选择一个头像才能继续。', [
-                { text: '确定', action: () => this.navigateTo('welcome-screen') }
-            ]);
+            this.ui.showToast('请选择头像');
             return false;
         }
         
@@ -229,7 +230,7 @@ class PokerApp {
         this.player.name = playerName;
         
         // 保存玩家名称到本地存储
-        localStorage.setItem('poker_player_name', playerName);
+        localStorage.setItem('player_name', playerName);
         
         return true;
     }
@@ -239,7 +240,7 @@ class PokerApp {
      */
     loadPlayerData() {
         // 如果本地有存储的数据，则加载
-        const savedName = localStorage.getItem('poker_player_name');
+        const savedName = localStorage.getItem('player_name');
         const savedAvatar = localStorage.getItem('poker_player_avatar');
         
         if (savedName) {
@@ -262,64 +263,15 @@ class PokerApp {
             return;
         }
         
-        // 获取房间设置
-        const roomName = document.getElementById('room-name').value.trim() || `${this.player.name}的房间`;
-        const maxPlayers = parseInt(document.getElementById('player-count').value);
-        const smallBlind = parseInt(document.getElementById('small-blind').value);
-        const bigBlind = parseInt(document.getElementById('big-blind').value);
-        const initialChips = parseInt(document.getElementById('initial-chips').value);
-        const allInFlips = parseInt(document.getElementById('all-in-flips').value);
-        
-        // 验证房间设置
-        if (bigBlind < smallBlind * 2) {
-            this.showModal('设置错误', '大盲注应该至少是小盲注的两倍。', [
-                { text: '确定', action: () => {} }
-            ]);
-            return;
-        }
-        
-        // 显示加载
         this.ui.showLoading();
         
-        // 模拟网络请求创建房间
+        // 模拟创建房间
         setTimeout(() => {
-            // 生成6位随机房间号
-            const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            // 更新房间信息
-            this.room = {
-                id: roomId,
-                name: roomName,
-                maxPlayers: maxPlayers,
-                smallBlind: smallBlind,
-                bigBlind: bigBlind,
-                initialChips: initialChips,
-                allInFlips: allInFlips,
-                players: [{
-                    id: 'p1', // 实际中应该是唯一ID
-                    name: this.player.name,
-                    avatar: this.player.avatar,
-                    chips: initialChips,
-                    isHost: true
-                }],
-                observers: [],
-                gameStarted: false,
-                hostId: 'p1' // 实际中应该是唯一ID
-            };
-            
-            // 更新玩家信息
-            this.player.isHost = true;
-            this.player.chips = initialChips;
-            this.player.position = 0;
-            
-            // 隐藏加载
+            const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('display-room-code').textContent = roomCode;
             this.ui.hideLoading();
-            
-            // 显示等待页面
             this.navigateTo('waiting-room-screen');
-            
-            console.log('房间已创建', this.room);
-        }, 800);
+        }, 1000);
     }
     
     /**
@@ -392,82 +344,19 @@ class PokerApp {
             return;
         }
         
-        // 获取房间号
-        const roomCode = document.getElementById('room-code').value.trim().toUpperCase();
-        const joinAsObserver = document.getElementById('join-as-observer').checked;
-        
-        // 验证房间号
-        if (!roomCode || roomCode.length < 4) {
-            this.showModal('请输入有效的房间号', '请输入至少4位的房间号。', [
-                { text: '确定', action: () => {} }
-            ]);
+        const roomCode = document.getElementById('room-code-input').value.trim();
+        if (!roomCode) {
+            this.ui.showToast('请输入房间号');
             return;
         }
         
-        // 显示加载
         this.ui.showLoading();
         
-        // 模拟网络请求加入房间
+        // 模拟加入房间
         setTimeout(() => {
-            // 模拟加入成功
-            // 实际应从服务器获取房间信息
-            
-            // 模拟房间数据
-            this.room = {
-                id: roomCode,
-                name: '测试房间',
-                maxPlayers: 6,
-                smallBlind: 5,
-                bigBlind: 10,
-                initialChips: 1000,
-                allInFlips: 3,
-                players: [
-                    {
-                        id: 'host123',
-                        name: '房主',
-                        avatar: 'avatar1',
-                        chips: 1000,
-                        isHost: true
-                    }
-                ],
-                observers: [],
-                gameStarted: false,
-                hostId: 'host123'
-            };
-            
-            if (joinAsObserver) {
-                // 作为观察者加入
-                this.room.observers.push({
-                    id: 'obs1', // 实际中应该是唯一ID
-                    name: this.player.name,
-                    avatar: this.player.avatar
-                });
-                
-                this.player.isHost = false;
-                this.player.position = -1;
-            } else {
-                // 作为玩家加入
-                this.player.chips = this.room.initialChips;
-                this.player.isHost = false;
-                this.player.position = this.room.players.length;
-                
-                this.room.players.push({
-                    id: 'p' + (this.room.players.length + 1), // 实际中应该是唯一ID
-                    name: this.player.name,
-                    avatar: this.player.avatar,
-                    chips: this.room.initialChips,
-                    isHost: false
-                });
-            }
-            
-            // 隐藏加载
             this.ui.hideLoading();
-            
-            // 显示等待页面
             this.navigateTo('waiting-room-screen');
-            
-            console.log('成功加入房间', this.room);
-        }, 800);
+        }, 1000);
     }
     
     /**
@@ -592,31 +481,9 @@ class PokerApp {
      * 离开房间
      */
     leaveRoom() {
-        this.showModal('确认离开房间', '您确定要离开当前房间吗？', [
-            { text: '取消', action: () => {}, isPrimary: false },
-            { text: '确认', action: () => {
-                // 重置房间信息
-                this.room = {
-                    id: '',
-                    name: '',
-                    maxPlayers: 6,
-                    smallBlind: 5,
-                    bigBlind: 10,
-                    initialChips: 1000,
-                    allInFlips: 3,
-                    players: [],
-                    observers: [],
-                    gameStarted: false,
-                    hostId: ''
-                };
-                
-                // 重置玩家房间相关信息
-                this.player.isHost = false;
-                this.player.position = -1;
-                
-                // 返回首页
-                this.navigateTo('welcome-screen');
-            }, isPrimary: true }
+        this.ui.showModal('确认离开', '确定要离开当前房间吗？', [
+            { text: '取消', isPrimary: false },
+            { text: '确定', isPrimary: true, action: () => this.navigateTo('welcome-screen') }
         ]);
     }
     
@@ -626,43 +493,22 @@ class PokerApp {
     startGame() {
         // 检查是否有足够的玩家
         if (this.room.players.length < 4) {
-            this.showModal('无法开始游戏', '至少需要4名玩家才能开始游戏。', [
-                { text: '确定', action: () => {} }
-            ]);
+            this.ui.showToast('至少需要4名玩家才能开始游戏');
             return;
         }
         
         // 检查是否是房主
         if (!this.player.isHost) {
-            this.showModal('权限不足', '只有房主才能开始游戏。', [
-                { text: '确定', action: () => {} }
-            ]);
+            this.ui.showToast('只有房主才能开始游戏');
             return;
         }
         
-        // 显示加载
         this.ui.showLoading();
         
-        // 模拟游戏加载过程
+        // 模拟游戏加载
         setTimeout(() => {
-            // 更新房间状态
-            this.room.gameStarted = true;
-            
-            // 隐藏加载
             this.ui.hideLoading();
-            
-            // 显示游戏页面
-            document.querySelector('.main-screen.active').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
-            
-            // 初始化游戏
-            if (window.pokerGame) {
-                window.pokerGame.initGame(this.room, this.player);
-            } else {
-                console.error('游戏引擎未加载');
-            }
-            
-            console.log('游戏已开始', this.room);
+            this.navigateTo('game-screen');
         }, 1500);
     }
     
@@ -723,6 +569,14 @@ class PokerApp {
     closeModal() {
         document.getElementById('modal').classList.remove('active');
     }
+
+    /**
+     * 显示指定页面
+     * @param {string} screenId - 目标页面ID
+     */
+    showScreen(screenId) {
+        this.navigateTo(screenId);
+    }
 }
 
 // 页面加载完成后初始化应用
@@ -730,28 +584,22 @@ window.addEventListener('DOMContentLoaded', () => {
     window.pokerApp = new PokerApp();
 });
 
-// 初始化游戏状态
-const gameState = {
-    isWinner: false,
-    currentPot: 0,
-    consecutiveGames: 0,
-    handRank: '',
-    successfulBluff: false
-};
+// 导出应用实例
+export const app = window.pokerApp;
 
 // 更新游戏状态
 function updateGameState(newState) {
-    Object.assign(gameState, newState);
+    Object.assign(currentPlayer, newState);
     
     // 检查成就
-    achievements.checkAchievements(gameState, currentPlayer.name);
+    achievements.checkAchievements(currentPlayer, currentPlayer.name);
     
     // 更新排行榜
-    if (gameState.isWinner) {
-        leaderboard.updateScore(currentPlayer.name, gameState.currentPot, {
-            gamesPlayed: gameState.consecutiveGames,
+    if (currentPlayer.isWinner) {
+        leaderboard.updateScore(currentPlayer.name, currentPlayer.currentPot, {
+            gamesPlayed: currentPlayer.consecutiveGames,
             wins: currentPlayer.wins,
-            biggestPot: gameState.currentPot
+            biggestPot: currentPlayer.currentPot
         });
     }
 }

@@ -203,4 +203,151 @@
     .gesture-hint.show {
         opacity: 1;
     }
+}
+
+/* 移动端样式适配 */
+@media (max-width: 480px) {
+    /* 布局调整 */
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    /* 菜单按钮 */
+    .menu-toggle {
+        display: block;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--color-surface);
+        border: 1px solid var(--border-color);
+        color: var(--color-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .menu-toggle:hover {
+        background: var(--color-primary);
+        color: var(--color-background);
+    }
+    
+    /* 内容区域调整 */
+    .main-content {
+        padding: var(--spacing-md);
+    }
+    
+    .main-screen {
+        padding: var(--spacing-md);
+        margin: 0;
+    }
+    
+    /* 头像网格 */
+    .avatar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .avatar-item {
+        width: 60px;
+        height: 80px;
+        padding: var(--spacing-xs);
+    }
+    
+    .avatar-item img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .avatar-name {
+        font-size: 0.75rem;
+    }
+    
+    /* 按钮组 */
+    .button-group {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    /* 输入框 */
+    .input-field {
+        font-size: 1rem;
+    }
+    
+    /* 房间列表 */
+    .room-list {
+        margin: var(--spacing-sm) 0;
+    }
+    
+    .room-item {
+        padding: var(--spacing-sm);
+    }
+    
+    /* 玩家列表 */
+    .player-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    /* 教程导航 */
+    .tutorial-navigation {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+    }
+    
+    .tutorial-nav {
+        font-size: 0.875rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    /* 模态框 */
+    .modal-content {
+        width: 90%;
+        max-width: none;
+        margin: var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 480px) and (orientation: landscape) {
+    .app-container {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .main-screen {
+        max-height: none;
+    }
+    
+    .avatar-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+    
+    .button-group {
+        flex-direction: row;
+    }
+    
+    .btn {
+        width: auto;
+    }
 } 

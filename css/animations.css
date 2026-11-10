@@ -163,32 +163,226 @@
     50% { transform: rotate(15deg); }
 }
 
-/* 渐入动画 */
+/* 动画效果 */
+
+/* 淡入 */
 @keyframes fadeIn {
-    0% {
+    from {
         opacity: 0;
     }
-    100% {
+    to {
         opacity: 1;
     }
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease forwards;
+/* 向上淡入 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* 渐出动画 */
-@keyframes fadeOut {
+/* 向下淡入 */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 缩放淡入 */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 弹跳效果 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 旋转 */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 闪烁 */
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 波纹效果 */
+@keyframes ripple {
     0% {
+        transform: scale(0);
         opacity: 1;
     }
     100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* 应用类 */
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.3s ease forwards;
+}
+
+.zoom-in {
+    animation: zoomIn 0.3s ease forwards;
+}
+
+.bounce {
+    animation: bounce 1s ease infinite;
+}
+
+.rotate {
+    animation: rotate 2s linear infinite;
+}
+
+.blink {
+    animation: blink 1s ease infinite;
+}
+
+/* 加载动画 */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--color-surface);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+}
+
+/* 波纹按钮效果 */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+/* 过渡效果 */
+.transition-fade {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.transition-transform {
+    transition: transform 0.3s ease;
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* 悬浮效果 */
+.hover-scale {
+    transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-lift {
+    transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+/* 聊天气泡动画 */
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.pop-in {
+    animation: popIn 0.3s ease forwards;
+}
+
+/* 表情动画 */
+@keyframes emojiBounce {
+    0% {
+        transform: scale(0) translateY(0);
+    }
+    50% {
+        transform: scale(1.2) translateY(-20px);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+.emoji-bounce {
+    animation: emojiBounce 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* 淡出动画 */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
         opacity: 0;
     }
 }
 
 .fade-out {
-    animation: fadeOut 0.5s ease forwards;
+    animation: fadeOut 0.3s ease forwards;
 }
 
 /* 从下方滑入 */
@@ -269,63 +463,6 @@
 
 .countdown-circle {
     animation: countdown linear forwards;
-}
-
-/* 按钮点击波纹效果 */
-@keyframes ripple {
-    0% {
-        transform: scale(0);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(2.5);
-        opacity: 0;
-    }
-}
-
-.ripple {
-    position: absolute;
-    border-radius: 50%;
-    transform: scale(0);
-    background: rgba(255, 255, 255, 0.4);
-    animation: ripple 0.6s linear;
-    pointer-events: none;
-}
-
-/* 聊天气泡动画 */
-@keyframes popIn {
-    0% {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.pop-in {
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-/* 表情动画 */
-@keyframes emojiBounce {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.emoji-bounce {
-    animation: emojiBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 /* 胜利动画 */

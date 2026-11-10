@@ -3,11 +3,15 @@
  * 处理用户界面交互和UI组件
  */
 
-class PokerUI {
+// UI 类
+export class PokerUI {
     constructor(app) {
         this.app = app;
         this.toastQueue = [];
         this.isShowingToast = false;
+        this.loadingOverlay = document.getElementById('loading');
+        this.toast = document.getElementById('toast');
+        this.modal = document.getElementById('modal');
         
         // 初始化波纹效果
         this.initRippleEffect();
@@ -157,14 +161,14 @@ class PokerUI {
      * 显示加载动画
      */
     showLoading() {
-        document.getElementById('loading-overlay').classList.add('active');
+        this.loadingOverlay.classList.add('active');
     }
     
     /**
      * 隐藏加载动画
      */
     hideLoading() {
-        document.getElementById('loading-overlay').classList.remove('active');
+        this.loadingOverlay.classList.remove('active');
     }
     
     /**
@@ -661,6 +665,35 @@ class PokerUI {
         }, 3000);
         
         return emojiElement;
+    }
+
+    showModal(title, message, buttons = []) {
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalFooter = document.getElementById('modal-footer');
+
+        modalTitle.textContent = title;
+        modalBody.innerHTML = `<p>${message}</p>`;
+        modalFooter.innerHTML = '';
+
+        buttons.forEach(button => {
+            const btn = document.createElement('button');
+            btn.textContent = button.text;
+            btn.className = button.isPrimary ? 'btn btn-primary' : 'btn';
+            btn.onclick = () => {
+                this.hideModal();
+                if (typeof button.action === 'function') {
+                    button.action();
+                }
+            };
+            modalFooter.appendChild(btn);
+        });
+
+        this.modal.classList.add('active');
+    }
+
+    hideModal() {
+        this.modal.classList.remove('active');
     }
 }
 
